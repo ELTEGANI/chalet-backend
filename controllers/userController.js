@@ -1,7 +1,6 @@
 const {Users,Reservations,Chalets,sms_codes} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
-const sequelize = require('sequelize');
 const axios = require('axios');
 const { Op } = require('sequelize');
 require('dotenv').config();
@@ -18,7 +17,7 @@ module.exports = {
       const  phoneNumber         = req.body.phoneNumber;
       const  emailAddress        = req.body.emailAddress;
       const  firebaseToken       = req.body.firebaseToken;
-      const  verificationMessage = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
+      const  verificationMessage = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);    
       try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
         if(!isUserExists){
@@ -111,12 +110,6 @@ module.exports = {
                 }
                 next(error);
               }
-            
-            //  return res
-            // .status(201)
-            // .json({
-            //   meesage:"User Registered Successfully"
-            // })
           }
         }else{
           return res
@@ -301,7 +294,7 @@ module.exports = {
   async resetPassword(req,res,next) {
     const emailAddress = req.body.emailAddress;
     const userId       = req.body.userId;
-    const  verificationCode = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
+    const  verificationCode = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);    
      try{
       const isUserCodeExists = await sms_codes.findOne({
         where: { userId:userId}
