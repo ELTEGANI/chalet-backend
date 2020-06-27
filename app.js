@@ -1,6 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const CronJob = require('cron').CronJob;
+const {Reservations} = require('./models');
+const { Op } = require('sequelize');
+
 
 // set routes
 const userRoute = require('./routes/userRoute');
@@ -33,6 +37,22 @@ app.use((error, req, res, next) => {
     data,
   });
 });
+
+
+//cron job
+const job = new CronJob('* * * * * *',function() {
+  try{
+    const updatedBooking = Reservations.update({
+    reservationStatus:"Canceled"},{where:{reservationStatus:"payed",createdAt:{
+        [Op.gt]: new Date(Date.now() - (60 * 60 * 1000))
+    }}});
+    console.log('Every Tenth Minute:',updatedBooking)
+}catch (error) {
+    console.log('error:',error)
+}
+});
+job.start();
+
 
 app.listen(process.env.PORT || 5000, () => {
   console.log(`Server is Listening To Port ${process.env.PORT}`);
