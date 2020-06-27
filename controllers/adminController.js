@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sequelize = require('sequelize');
 const axios = require('axios');
+const { Op } = require('sequelize');
 require('dotenv').config();
 
 
@@ -12,13 +13,14 @@ module.exports = {
       const  reservationStartDate     = req.body.reservationStartDate;
       const  reservationEndDate       = req.body.reservationEndDate;
       const  reservationStatus        = req.body.reservationStatus;
+      
       try{ 
         const updatedReservations = await Reservations.update({
             userId:userId,
             reservationStartDate:reservationStartDate,
             reservationEndDate:reservationEndDate,
             reservationStatus:reservationStatus,
-          }, { where: { 
+          },{where:{ 
             userId:userId,
             reservationStartDate:reservationStartDate,
             reservationEndDate:reservationEndDate
@@ -35,5 +37,18 @@ module.exports = {
       next(error);
       }
     },
+
+    async CanceledAllBookingwithStatusPayedAndOlderThanTenHours(req,res,next) {
+        try{
+            const updatedBooking = await Reservations.update({
+            reservationStatus:"payed"},{where:{createdAt:{
+                [Op.gt]: new Date(Date.now() - (60 * 60 * 1000))
+            }}});
+            console.log(updatedBooking)
+        }catch (error) {
+            console.log(error)
+        }
+    }
+
 
 };
