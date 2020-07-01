@@ -14,6 +14,7 @@ module.exports = {
       const  geneder      = req.body.geneder;
       const  password     = req.body.password;
       const  phoneNumber  = req.body.phoneNumber;
+      const  firebaseToken  = req.body.firebaseToken;
       const  verificationMessage = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
       try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
@@ -30,7 +31,8 @@ module.exports = {
           nationalId:nationalId,
           geneder:geneder,
           password:hashedPassword,
-          accountStatus:"not verified"
+          accountStatus:"not verified",
+          firebaseToken:firebaseToken
           })
           if(result){
            res
