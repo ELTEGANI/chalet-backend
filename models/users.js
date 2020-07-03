@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
     accountStatus: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    firebaseToken:{
+      type: DataTypes.STRING,
+      allowNull: false
     }
   }, {});
   Users.associate = function(models) {
