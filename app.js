@@ -5,7 +5,6 @@ const CronJob = require('cron').CronJob;
 const {Reservations,Users} = require('./models');
 const { Op } = require('sequelize');
 const admin = require('firebase-admin');
-const moment =  require('moment');
 const sequelize = require('sequelize');
 
 var serviceAccount = require("/home/etegani/my-project23-1575077857759-firebase-adminsdk-rllhp-7247dd9f34.json");
@@ -116,20 +115,29 @@ app.use((error, req, res, next) => {
 
 const job = new CronJob('1 * * * * *',async function() {
   try{
-
   const reservationInThePassedTenHours =  await Reservations.findAll({ 
-  attributes: [sequelize.fn('DISTINCT',sequelize.col('reservationStartDate'))],
-  where:{reservationStatus:["payed"]},
+  attributes: ['reservationStartDate','reservationStatus'],
+  where:{reservationStatus:["payed","init"]},
   include: [{
     model: Users, attributes: ['firebaseToken']
   }],
   raw : true
-});
+ });
+
+   const listOfDates =  reservationInThePassedTenHours.map(items => items.reservationStartDate)
+
+   const filterlist = reservationInThePassedTenHours.filter((item,index) => 
+   item.reservationStatus == "payed" && listOfDates.indexOf(item.reservationStartDate) != index);
+
+  console.log('filterlist',filterlist)
+
+
+
   
-  // const filterlist = reservationInThePassedTenHours.filter((item,index) => item.reservationStatus == "payed" &&
+  
+
   // reservationInThePassedTenHours.indexof(item.reservationStartDate) === index);
   
-  console.log('filterlist',reservationInThePassedTenHours);
 
   // reservationInThePassedTenHours.map((item,index)=>{
   //      if(item.reservationStatus == "payed") {
