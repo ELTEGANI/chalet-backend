@@ -44,7 +44,6 @@ module.exports = (sequelize, DataTypes) => {
     Users.hasMany(models.Chalets, { foreignKey: 'chaletId', targetKey: 'id' });
     Users.hasMany(models.Reservations, { foreignKey: 'userId', targetKey: 'id' });
     Users.hasMany(models.Inbox, { foreignKey: 'userId', targetKey: 'id' });
-
   };
   return Users;
 };
