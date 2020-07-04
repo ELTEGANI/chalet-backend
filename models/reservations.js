@@ -37,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   Reservations.associate = function(models) {
-    // associations can be defined here
     Reservations.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id' });
     Reservations.belongsTo(models.Chalets, { foreignKey: 'chaletId', targetKey: 'id' });
   };

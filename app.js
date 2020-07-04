@@ -46,113 +46,62 @@ app.use((error, req, res, next) => {
   });
 });
 
-
-//cron job to canceled all resservation that happened in the last 10 h
-// const job = new CronJob('* * * * * *',function() {
-//   try{
-//     const updatedBooking = Reservations.update({
-//     reservationStatus:"Canceled"},{where:{reservationStatus:"payed",createdAt:{
-//         [Op.gt]: new Date(Date.now() - (60 * 60 * 1000))
-//     }}});
-//     console.log('Every Tenth Minute:',updatedBooking)
-// }catch (error) {
-//     console.log('error:',error)
-// }
-// });
-// job.start();
-
-
-//cron job to send notifications to init booking users
-// const  registrationToken =
-//   'eeQxiZBaSWesj4cbxOdlLV:APA91bGogCZI_rffUBcS0L1dIiZSjOk8omSRjW6JKBgRhGfyhoPauwGCgHC6Xwx1EiDPsZVJm1l14S6TB8Z01kJ1gR8e73Uv3YNdcYGSbXF5t7muII5-0Fos9oFPaFo3-Jt1x8MWgQ_D'
-
-// const message = {
-//   notification: {
-//     title: 'test title',
-//     body: 'test body'
-//   },
-//   token: registrationToken
-// };
-// [Op.gt]:moment().subtract(10, 'hours').toDate()
-
-// const job = new CronJob('1 * * * * *',async function() {
-//   try{
-//   const usersTokens =  await Users.findAll({ 
-//         attributes: ['firebaseToken']
-//       })
-//   const registrationTokens = usersTokens.map(obj => obj.firebaseToken);
-  
-//   const message = {
-//   notification: {
-//     title: 'test title',
-//     body: 'test body'
-//   },
-//   tokens:registrationTokens
-//   };
-  
-//   console.log('message',message);
-
-//   admin.messaging().sendMulticast(message)
-//   .then((response) => {
-//     if (response.failureCount > 0) {
-//       const failedTokens = [];
-//       response.responses.forEach((resp, idx) => {
-//         if (!resp.success) {
-//           failedTokens.push(registrationTokens[idx]);
-//         }
-//       });
-//       console.log('List of tokens that caused failures: ' + failedTokens);
-//     }
-//   });
-
-//    }catch (error) {  
-//        console.log('error:',error)
-//   }
-
-// }); 
-// job.start();
-
-
 const job = new CronJob('1 * * * * *',async function() {
   try{
   const reservationInThePassedTenHours =  await Reservations.findAll({ 
   attributes: ['reservationStartDate','reservationStatus'],
   where:{reservationStatus:["payed","init"]},
-  include: [{
-    model: Users, attributes: ['firebaseToken']
-  }],
-  raw : true
+  include:[{
+    model: Users, 
+    attributes:['firebaseToken']
+    }],
+  raw : true,
+  required: true
  });
 
-   const listOfDates =  reservationInThePassedTenHours.map(items => items.reservationStartDate)
+   //filter users tokens
+   const filterdUserfirebaseToken = (reservationInThePassedTenHours.filter(item => 
+   item.reservationStatus == "payed" && reservationInThePassedTenHours.map(items => items.reservationStartDate)
+   .includes(item.reservationStartDate)));
 
-   const filterlist = reservationInThePassedTenHours.filter((item,index) => 
-   item.reservationStatus == "payed" && listOfDates.indexOf(item.reservationStartDate) != index);
+   //update the status to canceled
+     try{
+    const updatedBooking = Reservations.update({
+    reservationStatus:"Canceled"},{where:{reservationStatus:"payed",createdAt:{
+        [Op.gt]: new Date(Date.now() - (60 * 60 * 1000))
+    }}});
+    console.log('updatedBooking:',updatedBooking)
+    }catch (error) {
+    console.log('error:',error)
+    }
+   
+    //send notifications to other users
+   const message = {
+     notification: {
+    title: 'test title',
+    body: 'test body'
+      },
+     tokens: filterdUserfirebaseToken.map(token=>token['User.firebaseToken'])
+  };
 
-  console.log('filterlist',filterlist)
+     admin.messaging().sendMulticast(message)
+    .then((response) => {
+    if (response.failureCount > 0) {
+      const failedTokens = [];
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          failedTokens.push(registrationTokens[idx]);
+        }
+      });
+      console.log('List of tokens that caused failures: ' + failedTokens);
+    }
+  });
 
-
-
-  
-  
-
-  // reservationInThePassedTenHours.indexof(item.reservationStartDate) === index);
-  
-
-  // reservationInThePassedTenHours.map((item,index)=>{
-  //      if(item.reservationStatus == "payed") {
-  //        console.log('update status to cancelled');
-  //      } 
-  //      if(item.reservationStatus == "init") {
-  //       console.log('add all thier ids to an arrays');
-  //     }       
-  //  })
-
-  }catch (error) {  
+   }catch (error) {  
        console.log('error:',error)
-  }
-
+   }
 }); 
+
 job.start();
   
 
