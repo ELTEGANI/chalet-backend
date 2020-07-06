@@ -1,8 +1,9 @@
-const {Users,Reservations} = require('../models');
+const {Users,Reservations,Chalets} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const sequelize = require('sequelize');
 const axios = require('axios');
+const { Op } = require('sequelize');
 require('dotenv').config();
 
 
@@ -37,7 +38,7 @@ module.exports = {
           firebaseToken:firebaseToken
           })
           if(result){
-           res
+           return res
           .status(201)
           .json({
             meesage:"User Registered Successfully",
@@ -126,5 +127,45 @@ module.exports = {
         }
           next(err);
       }
+    },
+
+
+  async userLogin(req, res, next) {
+    const  Phone     = req.body.userPhone;
+    const  password  = req.body.password;
+    try{
+    const isUserFound = await Users.findOne({ where: {phoneNumber:Phone},
+       include:[{
+        model:Chalets,
+        attributes:['id','chaletName'],
+        raw : true,
+    }]
+    });
+    console.log("isUserFound"+isUserFound);
+    if(!isUserFound){
+          const error = new Error('You Do Not Have an Account,Please Register');
+          error.statusCode = 401;
+          throw error;    
+    }else{
+      const isPasswordEquel = await bcrypt.compare(password,isUserFound.password);
+      if(!isPasswordEquel){
+        const error = new Error('Worng Password');
+        error.statusCode = 401;
+        throw error;
+      }else{
+        const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
+       return res.status(200).json({
+        accesstoken:token,
+        chalet:isUserFound.Chalets
+      })
+      }
+    }  
+    }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
     }
+  },
+  
 };

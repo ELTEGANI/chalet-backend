@@ -1,4 +1,4 @@
-const {Reservations} = require('../models');
+const {Reservations,Chalets} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const sequelize = require('sequelize');
@@ -159,11 +159,11 @@ module.exports = {
     },
 
     async getAllReservations(req,res,next) {
-      const  userId             = req.body.userId;
-      const  chaletId           = req.body.chaletId;
+      const  userId             = req.params.userId;
+      const  chaletId           = req.params.chaletId;
       try{
         const getAllReservations = await Reservations.findAll({
-          where:{userId:userId,id:chaletId}
+          where:{userId:userId,chaletId:chaletId}
         });
         if(getAllReservations){
           return res
@@ -178,6 +178,62 @@ module.exports = {
         }
         next(error);
         }
-    }
+    },
+
+    async createChalet(req,res,next) {
+      const  userId                         = req.body.userId;
+      const  chaletName                     = req.body.chaletName;
+      const  chaletLongtitude               = req.body.chaletLongtitude;
+      const  chaletLatitude                 = req.body.chaletLatitude;
+      const  chaletServices                 = req.body.chaletServices
+      const  ChaletDescriptions             = req.body.ChaletDescriptions
+      const  chaletType                     = req.body.chaletType
+      const  chaletPriceNormalDay           = req.body.chaletPriceNormalDay
+      const  chaletPriceHoliday             = req.body.chaletPriceHoliday
+      const  chaletInsurance                = req.body.chaletInsurance
+      const  chaletPercentage               = req.body.chaletPercentage;
+      const  chaletCapacity                 = req.body.chaletCapacity;
+      const  chaletCommison                 = req.body.chaletCommison;
+      const  chaletStatus                   = req.body.chaletStatus;
+      const  chaletApproval                 = req.body.chaletApproval;
+
+      try{ 
+        const result = await Chalets.create({
+        userId:userId,
+        chaletName:chaletName,
+        chaletLongtitude:chaletLongtitude,
+        chaletLatitude:chaletLatitude,
+        chaletServices:chaletServices,
+        ChaletDescriptions:ChaletDescriptions,
+        chaletType:chaletType,
+        chaletPriceNormalDay:chaletPriceNormalDay,
+        chaletPriceHoliday:chaletPriceHoliday,
+        chaletInsurance:chaletInsurance,
+        chaletPercentage:chaletPercentage,
+        chaletCapacity:chaletCapacity,
+        chaletCommison:chaletCommison,
+        chaletStatus:chaletStatus,
+        chaletApproval:chaletApproval
+      })
+          if(result){
+           return res
+          .status(201)
+          .json({
+            meesage:"Chalet Registered Successfully",
+          })
+        }else{
+          return res
+          .status(500)
+          .json({
+            meesage:"please try later",
+          })
+        }
+      }catch (error) {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next(error);
+      }
+    },
 
 };
