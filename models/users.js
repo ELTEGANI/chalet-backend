@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    emailAddress: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     geneder: {
       type: DataTypes.STRING,
       allowNull: false
@@ -41,7 +45,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   Users.associate = function(models) {
-    Users.hasMany(models.Chalets, { foreignKey: 'chaletId', targetKey: 'id' });
+    Users.hasMany(models.Chalets, { foreignKey: 'userId', targetKey: 'id' });
     Users.hasMany(models.Reservations, { foreignKey: 'userId', targetKey: 'id' });
     Users.hasMany(models.Inbox, { foreignKey: 'userId', targetKey: 'id' });
   };

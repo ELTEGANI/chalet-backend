@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         allowNull: false,
       },
-      chaletId: {
+      userId: {
         type:Sequelize.STRING,
         allowNull: false,
       },
@@ -20,7 +20,7 @@ module.exports = {
          type:Sequelize.STRING,
         allowNull: false,
       },
-      Latitude: {
+      chaletLatitude: {
          type:Sequelize.STRING,
         allowNull: false,
       },

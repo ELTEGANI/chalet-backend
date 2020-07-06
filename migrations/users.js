@@ -24,6 +24,10 @@ module.exports = {
         type:Sequelize.STRING,
         allowNull: false,
       },
+      emailAddress: {
+        type:Sequelize.STRING,
+        allowNull: false,
+      },
       geneder: {
         type:Sequelize.STRING,
         allowNull: false,
