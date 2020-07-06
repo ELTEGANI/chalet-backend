@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/register',userController.signUpUser);
 router.post('/booking',userController.userReservation);
 router.put('/updatefirebasetoken',userController.updateUserFireBaseToken);
+router.post('/userlogin',userController.userLogin);
 
 
 module.exports = router;
