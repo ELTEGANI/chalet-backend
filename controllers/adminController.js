@@ -142,20 +142,42 @@ module.exports = {
               reservationStartDate:reservationStartDate,
               reservationEndDate:reservationEndDate
             }});
-            res
+            if(updatedReservations){
+             return res
               .status(200)
               .json({
                 message: 'Reservations Updated'
               });
+            }
         }catch (error) {
         if (!error.statusCode) {
           error.statusCode = 500;
         }
         next(error);
         }
-      }
-
-    
+      }    
     },
+
+    async getAllReservations(req,res,next) {
+      const  userId             = req.body.userId;
+      const  chaletId           = req.body.chaletId;
+      try{
+        const getAllReservations = await Reservations.findAll({
+          where:{userId:userId,id:chaletId}
+        });
+        if(getAllReservations){
+          return res
+          .status(200)
+          .json({
+            chaletReservations:getAllReservations
+          });
+        }
+      }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+        }
+    }
 
 };

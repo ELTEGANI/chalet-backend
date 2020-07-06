@@ -8,12 +8,13 @@ require('dotenv').config();
 
 module.exports = {
   async signUpUser(req,res,next) {
-      const  firstName    = req.body.firstName;
-      const  lastName     = req.body.lastName;
-      const  nationalId   = req.body.nationalId;
-      const  geneder      = req.body.geneder;
-      const  password     = req.body.password;
-      const  phoneNumber  = req.body.phoneNumber;
+      const  firstName      = req.body.firstName;
+      const  lastName       = req.body.lastName;
+      const  nationalId     = req.body.nationalId;
+      const  geneder        = req.body.geneder;
+      const  password       = req.body.password;
+      const  phoneNumber    = req.body.phoneNumber;
+      const  emailAddress   = req.body.emailAddress;
       const  firebaseToken  = req.body.firebaseToken;
       const  verificationMessage = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
       try{ 
@@ -29,6 +30,7 @@ module.exports = {
           lastName:lastName,
           phoneNumber:phoneNumber,
           nationalId:nationalId,
+          emailAddress:emailAddress,
           geneder:geneder,
           password:hashedPassword,
           accountStatus:"not verified",
@@ -102,6 +104,27 @@ module.exports = {
         }
           next(err);
       }
-    }
+    },
 
+    async updateUserFireBaseToken(req,res,next) {
+      const  userId                = req.body.userId;
+      const  userFireBaseToken     = req.body.userFireBaseToken;
+       try{
+        const updatedFireBaseToken = await Users.update({
+          firebaseToken:userFireBaseToken,
+        },{where:{ 
+          id:userId,
+        }});
+        if(updatedFireBaseToken){
+         return res.status(200).json({
+            message:true
+          });
+        }
+       }catch (err) {
+        if (!err.statusCode) {
+          err.statusCode = 500;
+        }
+          next(err);
+      }
+    }
 };

@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false,
     },
-    chaletId: { 
+    userId: { 
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    Latitude: { 
+    chaletLatitude: { 
       type: DataTypes.STRING,
       allowNull: false
     },
@@ -70,7 +70,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Chalets.associate = function(models) {
     // associations can be defined here
-    Chalets.belongsTo(models.Users, { foreignKey: 'chaletId', targetKey: 'id' });
+    Chalets.belongsTo(models.Users, { foreignKey: 'userId', targetKey: 'id' });
     Chalets.hasMany(models.Images, { foreignKey: 'chaletId', targetKey: 'id' });
     Chalets.hasMany(models.Reservations, { foreignKey: 'chaletId', targetKey: 'id' });
     Chalets.hasMany(models.Inbox, { foreignKey: 'chaletId', targetKey: 'id' });
