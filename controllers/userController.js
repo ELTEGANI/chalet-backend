@@ -213,7 +213,6 @@ module.exports = {
         raw : true,
     }]
     });
-    console.log("isUserFound"+isUserFound);
     if(!isUserFound){
           const error = new Error('You Do Not Have an Account,Please Register');
           error.statusCode = 401;
@@ -225,6 +224,7 @@ module.exports = {
         error.statusCode = 401;
         throw error;
       }else{
+        console.log("isUserFound"+isUserFound.id);
         const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
        return res.status(200).json({
         accesstoken:token,
