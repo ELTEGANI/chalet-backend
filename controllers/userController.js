@@ -1,4 +1,4 @@
-const {Users,Reservations,Chalets} = require('../models');
+const {Users,Reservations,Chalets,sms_codes} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const sequelize = require('sequelize');
@@ -9,14 +9,14 @@ require('dotenv').config();
 
 module.exports = {
   async signUpUser(req,res,next) {
-      const  firstName      = req.body.firstName;
-      const  lastName       = req.body.lastName;
-      const  nationalId     = req.body.nationalId;
-      const  geneder        = req.body.geneder;
-      const  password       = req.body.password;
-      const  phoneNumber    = req.body.phoneNumber;
-      const  emailAddress   = req.body.emailAddress;
-      const  firebaseToken  = req.body.firebaseToken;
+      const  firstName           = req.body.firstName;
+      const  lastName            = req.body.lastName;
+      const  nationalId          = req.body.nationalId;
+      const  geneder             = req.body.geneder;
+      const  password            = req.body.password;
+      const  phoneNumber         = req.body.phoneNumber;
+      const  emailAddress        = req.body.emailAddress;
+      const  firebaseToken       = req.body.firebaseToken;
       const  verificationMessage = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
       try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
@@ -26,7 +26,7 @@ module.exports = {
           throw error;
         }        
         const hashedPassword = await bcrypt.hash(password,12)  
-        const result = await Users.create({
+        const createdUser = await Users.create({
           firstName:firstName,
           lastName:lastName,
           phoneNumber:phoneNumber,
@@ -34,23 +34,71 @@ module.exports = {
           emailAddress:emailAddress,
           geneder:geneder,
           password:hashedPassword,
-          accountStatus:"not verified",
           firebaseToken:firebaseToken
           })
-          if(result){
-           return res
-          .status(201)
-          .json({
-            meesage:"User Registered Successfully",
-            code:verificationMessage
-          })
-          //send sms code to user
-          // try {
-          //   const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${verificationMessage}`);
-          //   console.log(res.data.data[0]);
-          // }catch (err) {
-          //   console.error(err);
-          // }
+          if(createdUser){
+            const isCodeExists = await sms_codes.findOne({
+              where: { userId:createdUser.id}
+            });
+            if(isCodeExists){
+              const isCodeDeleted = await sms_codes.destroy({ where: {  userId:createdUser.id} });
+              if(isCodeDeleted){
+                try{
+                  const createdCode = await sms_codes.create({
+                    userId:createdUser.id,
+                    code:verificationMessage,
+                })
+                if(createdCode){
+              try {
+                const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
+                const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                console.log(res.data.data[0]);
+              }catch (err) {
+                console.error(err);
+              }
+               return res
+              .status(201)
+              .json({
+                meesage:"User Registered Successfully",
+                code:verificationMessage
+              })
+            }
+                }catch (error) {
+                  if (!error.statusCode) {
+                    error.statusCode = 500;
+                  }
+                  next(error);
+                }
+              }
+            }else{
+              try{
+                const codeCreated = await Users.create({
+                  userId:createdUser.id,
+                  code:verificationMessage,
+              })
+              if(codeCreated){
+            //send sms code to user
+            try {
+              const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
+              const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+              console.log(res.data.data[0]);
+            }catch (err) {
+              console.error(err);
+            }
+             return res
+            .status(201)
+            .json({
+              meesage:"User Registered Successfully",
+              code:verificationMessage
+            })
+          }
+              }catch (error) {
+                if (!error.statusCode) {
+                  error.statusCode = 500;
+                }
+                next(error);
+              }
+            }
         }
       }catch (error) {
       if (!error.statusCode) {

@@ -37,7 +37,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     accountStatus: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue:0
     },
     firebaseToken:{
       type: DataTypes.STRING,
@@ -48,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     Users.hasMany(models.Chalets, { foreignKey: 'userId', targetKey: 'id' });
     Users.hasMany(models.Reservations, { foreignKey: 'userId', targetKey: 'id' });
     Users.hasMany(models.Inbox, { foreignKey: 'userId', targetKey: 'id' });
+    Users.hasMany(models.sms_codes, { foreignKey: 'userId', targetKey: 'id' });
   };
   return Users;
 };

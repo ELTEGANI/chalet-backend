@@ -39,6 +39,7 @@ module.exports = {
       accountStatus: {
         type:Sequelize.STRING,
         allowNull: false,
+        defaultValue:0
       },
       firebaseToken: {
         type:Sequelize.STRING,
