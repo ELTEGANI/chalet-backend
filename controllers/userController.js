@@ -295,6 +295,9 @@ module.exports = {
       }
       next(err);
     }
-  }
+  },
 
+  async forgetPassword(req,res,next) {
+
+  }
 };
