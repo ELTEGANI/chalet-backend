@@ -20,86 +20,110 @@ module.exports = {
       const  verificationMessage = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
       try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
-        if(isUserExists){
-          const error = new Error('This User already Exists');
-          error.statusCode = 401;
-          throw error;
-        }        
-        const hashedPassword = await bcrypt.hash(password,12)  
-        const createdUser = await Users.create({
-          firstName:firstName,
-          lastName:lastName,
-          phoneNumber:phoneNumber,
-          nationalId:nationalId,
-          emailAddress:emailAddress,
-          geneder:geneder,
-          password:hashedPassword,
-          firebaseToken:firebaseToken
-          })
-          if(createdUser){
-            const isCodeExists = await sms_codes.findOne({
-              where: { userId:createdUser.id}
-            });
-            if(isCodeExists){
-              const isCodeDeleted = await sms_codes.destroy({ where: {  userId:createdUser.id} });
-              if(isCodeDeleted){
-                try{
-                  const createdCode = await sms_codes.create({
-                    userId:createdUser.id,
-                    code:verificationMessage,
-                })
-                if(createdCode){
-              try {
-                const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
-                const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
-                console.log(res.data.data[0]);
-              }catch (err) {
-                console.error(err);
-              }
-               return res
-              .status(201)
-              .json({
-                meesage:"User Registered Successfully",
-                code:verificationMessage
-              })
-            }
-                }catch (error) {
-                  if (!error.statusCode) {
-                    error.statusCode = 500;
-                  }
-                  next(error);
-                }
-              }
-            }else{
-              try{
-                const codeCreated = await Users.create({
-                  userId:createdUser.id,
-                  code:verificationMessage,
-              })
-              if(codeCreated){
-            //send sms code to user
-            try {
-              const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
-              const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
-              console.log(res.data.data[0]);
-            }catch (err) {
-              console.error(err);
-            }
-             return res
-            .status(201)
-            .json({
-              meesage:"User Registered Successfully",
-              code:verificationMessage
+        if(!isUserExists){
+          const hashedPassword = await bcrypt.hash(password,12)  
+          const createdUser = await Users.create({
+            firstName:firstName,
+            lastName:lastName,
+            phoneNumber:phoneNumber,
+            nationalId:nationalId,
+            emailAddress:emailAddress,
+            geneder:geneder,
+            password:hashedPassword,
+            firebaseToken:firebaseToken
             })
-          }
+            if(createdUser){
+              try{
+                const isCodeExists = await sms_codes.findOne({
+                  where: { userId:createdUser.id}
+                });
+                if(isCodeExists){
+                   try{
+                    const isCodeDeleted = await sms_codes.destroy({ where: {  userId:createdUser.id} });
+                     if(isCodeDeleted){
+                         try{
+                          const createdCode = await sms_codes.create({
+                            userId:createdUser.id,
+                            code:verificationMessage,
+                        })
+                        if(createdCode){
+                          try {
+                            const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
+                            const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                            console.log(res.data.data[0]);
+                          }catch (err) {
+                            console.error(err);
+                          }
+                          return res
+                          .status(201)
+                          .json({
+                            meesage:"User Registered Successfully",
+                            code:verificationMessage
+                          })
+                        }
+                         }catch (error) {
+                          if (!error.statusCode) {
+                            error.statusCode = 500;
+                          }
+                          next(error);
+                          }
+                     }
+                   }catch (error) {
+                    if (!error.statusCode) {
+                      error.statusCode = 500;
+                    }
+                    next(error);
+                    }
+                }else{
+                  try{
+                    const createdCode = await sms_codes.create({
+                      userId:createdUser.id,
+                      code:verificationMessage,
+                  })
+                  if(createdCode){
+                    try {
+                      const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
+                      const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                      console.log(res.data.data[0]);
+                    }catch (err) {
+                      console.error(err);
+                    }
+                    const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+" "+verificationMessage;
+
+                    return res
+                    .status(201)
+                    .json({
+                      meesage:"User Registered Successfully",
+                      code:message
+                    })
+                  }
+                   }catch (error) {
+                    if (!error.statusCode) {
+                      error.statusCode = 500;
+                    }
+                    next(error);
+                    }
+                }
               }catch (error) {
                 if (!error.statusCode) {
                   error.statusCode = 500;
                 }
                 next(error);
               }
-            }
-        }
+            
+            //  return res
+            // .status(201)
+            // .json({
+            //   meesage:"User Registered Successfully"
+            // })
+          }
+        }else{
+          return res
+            .status(200)
+            .json({
+            meesage:"This User already Exists",
+         })
+       }         
       }catch (error) {
       if (!error.statusCode) {
         error.statusCode = 500;
@@ -216,4 +240,61 @@ module.exports = {
     }
   },
   
+  async verifyUserCode(req,res,next) {
+    const  userCode           = req.body.userCode;
+    const  userId             = req.body.userId;
+    try{
+      const isUserAndCodeExists = await sms_codes.findAll({
+        where: { userId:userId,code:userCode},
+        include:{
+          model:Users,
+          where:{
+            id:userId
+          }
+        }
+      });
+      if(isUserAndCodeExists.length > 0){
+        try{ 
+          const updatedStatusCode = await sms_codes.update({
+            status:1,
+            },{where:{ 
+              userId:userId,
+              code:userCode
+            }});
+            if(updatedStatusCode){
+              const updatedStatus = await Users.update({
+                accountStatus:1,
+                },{where:{ 
+                  id:userId,
+                }});
+                console.log(updatedStatus)
+                if(updatedStatus){
+                 return res
+                  .status(200)
+                  .json({
+                    message: 'Account Verifyed'
+                  });
+                }
+            }
+        }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+        }
+      }else{
+        return res
+        .status(401)
+        .json({
+          message:'Invalid Activation Code'
+        });
+      }
+    }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  }
+
 };

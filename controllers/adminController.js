@@ -39,14 +39,13 @@ module.exports = {
             if(updatedReservations){
               
             //send sms
-          // const confirmationBookingMessage = "عملينا العزيز تم تاكيد الحجز امنياتنا بقضاء اوقات سعيدة.نرجو شاكرين كتابة ملاحظاتك عن خدماتنا من داخل التطبيق وذلك لمزيدا من ترقية الخدمة"  
-          // try {
-          //   const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${userPhoneNumber}&sender=${process.env.SMS_SENDER}&message=${confirmationBookingMessage}`);
-          //   console.log(res.data.data[0]);
-          // }catch (err) {
-          //   console.error(err);
-          // }
-          
+          const confirmationBookingMessage = "عملينا العزيز تم تاكيد الحجز امنياتنا بقضاء اوقات سعيدة.نرجو شاكرين كتابة ملاحظاتك عن خدماتنا من داخل التطبيق وذلك لمزيدا من ترقية الخدمة"  
+          try {
+            const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${userPhoneNumber}&sender=${process.env.SMS_SENDER}&message=${confirmationBookingMessage}`);
+            console.log(res.data.data[0]);
+          }catch (err) {
+            console.error(err);
+          }
           //send email address
           let transporter = nodemailer.createTransport({
             service: 'gmail',
