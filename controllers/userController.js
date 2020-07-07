@@ -5,6 +5,7 @@ const sequelize = require('sequelize');
 const axios = require('axios');
 const { Op } = require('sequelize');
 require('dotenv').config();
+const nodemailer = require("nodemailer");
 
 
 module.exports = {
@@ -213,7 +214,6 @@ module.exports = {
         raw : true,
     }]
     });
-    console.log("isUserFound"+isUserFound);
     if(!isUserFound){
           const error = new Error('You Do Not Have an Account,Please Register');
           error.statusCode = 401;
@@ -225,6 +225,7 @@ module.exports = {
         error.statusCode = 401;
         throw error;
       }else{
+        console.log("isUserFound"+isUserFound.id);
         const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
        return res.status(200).json({
         accesstoken:token,
@@ -295,6 +296,138 @@ module.exports = {
       }
       next(err);
     }
-  }
+  },
+
+  async resetPassword(req,res,next) {
+    const emailAddress = req.body.emailAddress;
+    const userId       = req.body.userId;
+    const  verificationCode = Math.random().toString(4).substring(2,5) + Math.random().toString(4).substring(2,5);    
+     try{
+      const isUserCodeExists = await sms_codes.findOne({
+        where: { userId:userId}
+      });
+       if(isUserCodeExists){
+          try{
+            const isCodeDeleted = await sms_codes.destroy({ where: {  userId:userId} });
+            if(isCodeDeleted){
+              try{
+                const createdCode = await sms_codes.create({
+                  userId:userId,
+                  code:verificationCode,
+              })
+              if(createdCode){
+                const  verificationMessage = ("<h3 style='text-align: center;'>"+
+                "كود اعادة تعيين كلمة المرور"+'<br>'+verificationCode+'<br>'+
+                "شاليهات بيوتي"+" "+"0532295510"+'<br>'+
+                "الرياض-حي الرمال-بعد دوار العويضة-ترخيص رقم 4516ث"+'<br>'
+                +"</h3>")  
+                 //send email address
+         let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth:{
+            user:process.env.EMAIL_ADDRESS,
+            pass:process.env.EMAIL_PASSWORD
+          }
+        });
+        let info = await transporter.sendMail({
+          from: '"حجز شاليهات" <beautychalet2020@gmail.com>',
+          to:emailAddress,
+          subject: "إعادة تعيين كلمة المرور",
+          html: verificationMessage,
+          });
+          console.log("Message sent: %s", info.messageId);
+          return res
+          .status(200)
+          .json({
+            message:'Check Your Email Address'
+          });            
+              }
+              }catch (err) {
+                if (!err.statusCode) {
+                  err.statusCode = 500;
+                }
+                next(err);
+              }
+            }
+          }catch (err) {
+            if (!err.statusCode) {
+              err.statusCode = 500;
+            }
+            next(err);
+          }
+       }else{
+        return res
+        .status(200)
+        .json({
+          message:'You dont have account with us'
+        });
+       }
+     }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  },
+
+  async verifyResetPassword(req,res,next) {
+    const verificationCode = req.body.verificationCode;
+    const userId           = req.body.userId;
+    const isCodeExists = await sms_codes.findOne({
+      where: { userId:userId,code:verificationCode}
+    });
+    try{
+      if(isCodeExists){
+        return res
+        .status(200)
+        .json({
+          message:'Now You can change your password'
+        });
+      }else{
+        return res
+        .status(401)
+        .json({
+          message:'Invalid Verification Code'
+        });
+      }
+    }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  },
+
+  async updatePassword(req,res,next) {
+    const password         = req.body.password;
+    const userId           = req.body.userId;
+    const hashedPassword = await bcrypt.hash(password,12)  
+    try{
+      const updatedpassword = await Users.update({
+        password:hashedPassword,
+    },{where:{ 
+      id:userId,
+    }});
+      if(updatedpassword){
+        return res
+        .status(200)
+        .json({
+          message:'Your New Passwrod Updated Successfully'
+        });
+      }else{
+        return res
+        .status(401)
+        .json({
+          message:'couldnt Update Your Password Try Later'
+        });
+      }
+    }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  },
+
 
 };

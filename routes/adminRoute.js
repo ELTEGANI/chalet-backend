@@ -1,11 +1,12 @@
 const express = require('express');
 const adminController = require('../controllers/adminController');
 const router = express.Router();
+const isAuth = require('../middleware/middleware');
 
 
-router.post('/confirmbooking',adminController.bookingAndPayedCommissions);
-router.get('/getAllReservations/:userId/:chaletId',adminController.getAllReservations)
-router.post('/createchalet',adminController.createChalet)
+router.post('/confirmbooking',isAuth,adminController.bookingAndPayedCommissions);
+router.get('/getAllReservations/:userId/:chaletId',isAuth,adminController.getAllReservations)
+router.post('/createchalet',isAuth,adminController.createChalet)
 
 
 module.exports = router;
