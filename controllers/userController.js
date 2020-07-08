@@ -1,4 +1,4 @@
-const {Users,Reservations,Chalets,sms_codes} = require('../models');
+const {Users,Reservations,Chalets,sms_codes,Inbox} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -394,8 +394,8 @@ module.exports = {
   async updatePassword(req,res,next) {
     const password         = req.body.password;
     const userId           = req.body.userId;
-    const hashedPassword = await bcrypt.hash(password,12)  
     try{
+      const hashedPassword = await bcrypt.hash(password,12)    
       const updatedpassword = await Users.update({
         password:hashedPassword,
     },{where:{ 
@@ -421,6 +421,49 @@ module.exports = {
       next(err);
     }
   },
+
+  
+  async sendNoteAboutChalet(req,res,next) {
+    const userNotes          = req.body.notes;
+    const userId             = req.body.userId;
+    const chaletId           = req.body.chaletId;
+
+    try{
+      const isUserReserved = await Reservations.findOne({ where: { userId:userId } })
+      if(isUserReserved){
+        try{
+          const createdNotes = await Inbox.create({
+            userId:userId,
+            chaletId:chaletId,
+            userMessage:userNotes
+            });
+          if(createdNotes){
+              return res
+             .status(201)
+             .json({
+              message:'Dear customer, your feedback is important to us.Thank you for sending it to us'
+          });
+            }        
+        }catch (err) {
+          if (!err.statusCode) {
+            err.statusCode = 500;
+          }
+          next(err);
+        }
+      }else{
+        return res
+        .status(404)
+        .json({
+          message:'You have no previous reservations so you cannot write notes about the chalet'
+        });
+      }
+    }catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  }
 
 
 };
