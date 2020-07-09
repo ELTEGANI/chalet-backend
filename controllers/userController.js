@@ -1,4 +1,4 @@
-const {Users,Reservations,Chalets,sms_codes,Inbox} = require('../models');
+const {Users,Reservations,Chalets,sms_codes,Inbox,Images} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
@@ -463,7 +463,31 @@ module.exports = {
       }
       next(err);
     }
-  }
+  },
+
+
+  async getAllChalets(req,res,next) {
+    try{
+      const getAllChalets = await Chalets.findAll({
+        where:{chaletStatus:"true",chaletApproval:"true"},
+        include:{
+          model:Images
+        }
+      });
+      if(getAllChalets){
+        return res
+        .status(200)
+        .json({
+          allChalets:getAllChalets
+        });
+      }
+    }catch (error) {
+      if (!error.statusCode) {
+        error.statusCode = 500;
+      }
+      next(error);
+      }
+  },
 
 
 };
