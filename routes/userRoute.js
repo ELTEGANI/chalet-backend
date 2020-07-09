@@ -14,6 +14,7 @@ router.post('/forgetpassword',userController.resetPassword);
 router.post('/verifypasswordchange',userController.verifyResetPassword);
 router.post('/updatepassword',userController.updatePassword);
 router.post('/sendnote',userController.sendNoteAboutChalet);
+router.get('/getallchalets',isAuth,userController.getAllChalets);
 
 
 module.exports = router;
