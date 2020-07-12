@@ -16,7 +16,7 @@ module.exports = {
       const  password            = req.body.password;
       const  phoneNumber         = req.body.phoneNumber;
       const  emailAddress        = req.body.emailAddress;
-      const  firebaseToken       = req.body.firebaseToken;
+      const  firebaseToken       = "null";
       const  verificationMessage = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);    
       try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
@@ -57,8 +57,8 @@ module.exports = {
                           return res
                           .status(201)
                           .json({
-                            meesage:"User Registered Successfully",
-                            code:verificationMessage
+                            message:"Registered",
+                            userId:createdCode.userId
                           })
                         }
                          }catch (error) {
@@ -88,13 +88,11 @@ module.exports = {
                     }catch (err) {
                       console.error(err);
                     }
-                    const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+" "+verificationMessage;
-
                     return res
                     .status(201)
                     .json({
-                      meesage:"User Registered Successfully",
-                      code:message
+                      message:"Registered",
+                      userId:createdCode.userId
                     })
                   }
                    }catch (error) {
@@ -115,7 +113,7 @@ module.exports = {
           return res
             .status(200)
             .json({
-            meesage:"This User already Exists",
+             message:"Exists",
          })
        }         
       }catch (error) {
@@ -221,7 +219,7 @@ module.exports = {
         console.log("isUserFound"+isUserFound.id);
         const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
        return res.status(200).json({
-        accesstoken:token,
+        accessToken:token,
         chalet:isUserFound.Chalets
       })
       }
@@ -263,10 +261,12 @@ module.exports = {
                 }});
                 console.log(updatedStatus)
                 if(updatedStatus){
-                 return res
+               const token = jwt.sign({userId:userId},process.env.JWT_SEC);
+                  return res
                   .status(200)
                   .json({
-                    message: 'Account Verifyed'
+                    message: 'Verified',
+                    accessToken:token
                   });
                 }
             }

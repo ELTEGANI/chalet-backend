@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 const admin = require('firebase-admin');
 const sequelize = require('sequelize');
 
-var serviceAccount = require("/home/etegani/my-project23-1575077857759-firebase-adminsdk-rllhp-7247dd9f34.json");
+var serviceAccount = require("/home/firebase-adminsdk.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
