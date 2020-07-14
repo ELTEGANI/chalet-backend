@@ -17,8 +17,8 @@ module.exports = {
       const  phoneNumber         = req.body.phoneNumber;
       const  emailAddress        = req.body.emailAddress;
       const  firebaseToken       = "null";
-      const  verificationMessage = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);    
-      try{ 
+      const  verificationMessage = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);
+ try{ 
        const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
         if(!isUserExists){
           const hashedPassword = await bcrypt.hash(password,12)  
@@ -48,8 +48,8 @@ module.exports = {
                         })
                         if(createdCode){
                           try {
-                            const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
-                            const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                            const message = "your activation code is"+" "+verificationMessage;
+ const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
                             console.log(res.data.data[0]);
                           }catch (err) {
                             console.error(err);
@@ -82,8 +82,8 @@ module.exports = {
                   })
                   if(createdCode){
                     try {
-                      const message = "الرجاء استخدام هذا الرقم للتحقق من رقم جوالك"+verificationMessage;
-                      const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                      const message = "your activation code is"+" "+verificationMessage;
+    const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
                       console.log(res.data.data[0]);
                     }catch (err) {
                       console.error(err);
@@ -206,22 +206,23 @@ module.exports = {
     }]
     });
     if(!isUserFound){
-          const error = new Error('You Do Not Have an Account,Please Register');
-          error.statusCode = 401;
-          throw error;    
+           return res.status(404).json({
+           message:"not found"
+      })
     }else{
       const isPasswordEquel = await bcrypt.compare(password,isUserFound.password);
       if(!isPasswordEquel){
-        const error = new Error('Worng Password');
-        error.statusCode = 401;
-        throw error;
+         return res.status(401).json({
+         message:"Wrong Password"
+      })
       }else{
         console.log("isUserFound"+isUserFound.id);
         const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
        return res.status(200).json({
         accessToken:token,
-        chalet:isUserFound.Chalets
-      })
+        chalet:isUserFound.Chalets,
+        message:"login"
+ })
       }
     }  
     }catch (err) {
@@ -489,5 +490,26 @@ module.exports = {
       }
   },
 
+   
+  async createChaletsImages(req,res,next) {
+      try{
+        const uploadImage = await Images.create({
+          chaletId:req.body.chaletId,
+          imageUrl:req.body.imageUrl
+          })
+          if(uploadImage){
+            return res
+            .status(201)
+            .json({
+              message:"done uploaded images"
+            });
+          }
+      }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+    }
+  }
 
 };
