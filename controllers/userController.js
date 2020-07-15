@@ -151,7 +151,7 @@ module.exports = {
               reservationConditions:reservationConditions
               })
              res.status(201).json({
-                message: 'Your Are Booked'
+                message: 'Booked'
              }) 
            }catch (err) {
             if (!err.statusCode) {
@@ -161,7 +161,7 @@ module.exports = {
           }
          }else{
           res.status(200).json({
-            message: 'You Booked In Those Dates'
+            message: 'found'
          }) 
          }
        }catch (err) {
@@ -509,6 +509,27 @@ module.exports = {
         }
         next(error);
     }
-  }
+  },
+
+ async getAllReservationsDates(req,res,next) {
+      const  chaletId           = req.params.chaletId;
+      try{
+        const getAllReservations = await Reservations.findAll({
+          where:{chaletId:chaletId}
+        });
+        if(getAllReservations){
+          return res
+          .status(200)
+          .json({
+            chaletReservations:getAllReservations
+          });
+        }
+      }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+        }
+    },
 
 };
