@@ -134,10 +134,11 @@ module.exports = {
       const  reservationConditions  = req.body.reservationConditions;
        try{
         const  isBooked = await Reservations.findOne({ where: {
-          reservationStatus:"booked",
+          reservationStatus:["init","booked"],
           reservationStartDate:reservationStartDate,
-          reservationEndDate:reservationEndDate
-          }});  
+          reservationEndDate:reservationEndDate,
+          userId:userId
+          }});
          if(!isBooked){
            try{
             const result = await Reservations.create({
@@ -160,7 +161,7 @@ module.exports = {
           }
          }else{
           res.status(200).json({
-            message: 'Try Another Dates'
+            message: 'You Booked In Those Dates'
          }) 
          }
        }catch (err) {
@@ -478,9 +479,7 @@ module.exports = {
       if(getAllChalets){
         return res
         .status(200)
-        .json({
-          allChalets:getAllChalets
-        });
+        .json(getAllChalets);
       }
     }catch (error) {
       if (!error.statusCode) {
