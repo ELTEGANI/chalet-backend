@@ -16,7 +16,7 @@ router.post('/updatepassword',userController.updatePassword);
 router.post('/sendnote',userController.sendNoteAboutChalet);
 router.get('/getallchalets',isAuth,userController.getAllChalets);
 router.post('/createimage',userController.createChaletsImages);
-
+router.get('/bookedReservation/:chaletId',userController.getAllReservationsDates);
 
 module.exports = router;
   
