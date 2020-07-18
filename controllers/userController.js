@@ -352,7 +352,7 @@ module.exports = {
           }
        }else{
         return res
-        .status(200)
+        .status(404)
         .json({
           message:'You dont have account with us'
         });
@@ -443,7 +443,7 @@ module.exports = {
               return res
              .status(201)
              .json({
-              message:'Dear customer, your feedback is important to us.Thank you for sending it to us'
+              message:'Done'
           });
             }        
         }catch (err) {
@@ -456,7 +456,7 @@ module.exports = {
         return res
         .status(404)
         .json({
-          message:'You have no previous reservations so you cannot write notes about the chalet'
+          message:'Forbidden'
         });
       }
     }catch (err) {
@@ -514,15 +514,14 @@ module.exports = {
  async getAllReservationsDates(req,res,next) {
       const  chaletId           = req.params.chaletId;
       try{
-        const getAllReservations = await Reservations.findAll({
-          where:{chaletId:chaletId}
+        const getAllReservations = await Reservations.findAll({ 
+         attributes: ['reservationStartDate','reservationEndDate'],
+         where:{chaletId:chaletId,reservationStatus:"Booked"}
         });
         if(getAllReservations){
           return res
           .status(200)
-          .json({
-            chaletReservations:getAllReservations
-          });
+          .json(getAllReservations);
         }
       }catch (error) {
         if (!error.statusCode) {
@@ -531,5 +530,4 @@ module.exports = {
         next(error);
         }
     },
-
 };
