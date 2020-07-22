@@ -111,7 +111,7 @@ module.exports = {
           }
         }else{
           return res
-            .status(200)
+            .status(422)
             .json({
              message:"Exists",
          })
@@ -137,7 +137,8 @@ module.exports = {
           reservationStatus:["init","booked"],
           reservationStartDate:reservationStartDate,
           reservationEndDate:reservationEndDate,
-          userId:userId
+          userId:userId,
+          chaletId:chaletId
           }});
          if(!isBooked){
            try{
@@ -160,7 +161,7 @@ module.exports = {
               next(err);
           }
          }else{
-          res.status(200).json({
+          res.status(422).json({
             message: 'found'
          }) 
          }
@@ -281,7 +282,7 @@ module.exports = {
         }
       }else{
         return res
-        .status(401)
+        .status(404)
         .json({
           message:'Invalid Activation Code'
         });
