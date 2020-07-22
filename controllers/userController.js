@@ -176,16 +176,17 @@ module.exports = {
       const  userId                = req.body.userId;
       const  userFireBaseToken     = req.body.userFireBaseToken;
        try{
+       const userExists = await Users.findByPk(userId);
+      if (!userExists) {
+        const error = new Error('Could not find User');
+        error.statusCode = 404;
+        throw error;
+      }
         const updatedFireBaseToken = await Users.update({
-          firebaseToken:userFireBaseToken,
-        },{where:{ 
-          id:userId,
-        }});
-        if(updatedFireBaseToken){
-         return res.status(200).json({
-            message:true
+          firebaseToken:userFireBaseToken},{where:{id:userId}});
+          return res.status(200).json({
+          message:"true"
           });
-        }
        }catch (err) {
         if (!err.statusCode) {
           err.statusCode = 500;
