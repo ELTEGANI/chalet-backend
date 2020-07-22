@@ -207,21 +207,21 @@ module.exports = {
     }]
     });
     if(!isUserFound){
-           return res.status(404).json({
-           message:"not found"
-      })
+          const error = new Error('User Not Found');
+          error.statusCode = 404;
+          throw error;    
     }else{
       const isPasswordEquel = await bcrypt.compare(password,isUserFound.password);
       if(!isPasswordEquel){
-         return res.status(401).json({
-         message:"Wrong Password"
-      })
+        const error = new Error('Worng Password');
+        error.statusCode = 400;
+        throw error;
       }else{
-        console.log("isUserFound"+isUserFound.id);
         const token = jwt.sign({userId:isUserFound.id},process.env.JWT_SEC);
        return res.status(200).json({
         accessToken:token,
         chalet:isUserFound.Chalets,
+        userId:isUserFound.id,
         message:"login"
  })
       }
@@ -315,11 +315,12 @@ module.exports = {
                 "كود اعادة تعيين كلمة المرور"+'<br>'+verificationCode+'<br>'+
                 "شاليهات بيوتي"+" "+"0532295510"+'<br>'+
                 "الرياض-حي الرمال-بعد دوار العويضة-ترخيص رقم 4516ث"+'<br>'
-                +"</h3>")  
+                +"</h3>")
                  //send email address
          let transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth:{
+           service: 'Gmail',
+           debug: true,
+           auth:{
             user:process.env.EMAIL_ADDRESS,
             pass:process.env.EMAIL_PASSWORD
           }
@@ -329,13 +330,24 @@ module.exports = {
           to:emailAddress,
           subject: "إعادة تعيين كلمة المرور",
           html: verificationMessage,
+          },function (error, response) {
+          if (error) {
+            console.log(error);
+return res
+          .status(500)
+          .json({
+            message:error
           });
-          console.log("Message sent: %s", info.messageId);
-          return res
+          }
+          else {
+             return res
           .status(200)
           .json({
             message:'Check Your Email Address'
-          });            
+          }); 
+            console.log("mail sent");
+           }
+          });
               }
               }catch (err) {
                 if (!err.statusCode) {
@@ -380,7 +392,7 @@ module.exports = {
         });
       }else{
         return res
-        .status(401)
+        .status(400)
         .json({
           message:'Invalid Verification Code'
         });
@@ -411,7 +423,7 @@ module.exports = {
         });
       }else{
         return res
-        .status(401)
+        .status(400)
         .json({
           message:'couldnt Update Your Password Try Later'
         });
