@@ -12,7 +12,7 @@ router.post('/userlogin',userController.userLogin);
 router.put('/userverifcation',userController.verifyUserCode);
 router.post('/forgetpassword',userController.resetPassword);
 router.post('/verifypasswordchange',userController.verifyResetPassword);
-router.post('/updatepassword',userController.updatePassword);
+router.put('/updatepassword',userController.updatePassword);
 router.post('/sendnote',userController.sendNoteAboutChalet);
 router.get('/getallchalets',isAuth,userController.getAllChalets);
 router.post('/createimage',userController.createChaletsImages);
