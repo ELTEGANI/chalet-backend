@@ -5,7 +5,7 @@ const isAuth = require('../middleware/middleware');
 
 
 router.post('/confirmbooking',isAuth,adminController.bookingAndPayedCommissions);
-router.get('/getAllReservations/:userId/:chaletId',isAuth,adminController.getAllReservations)
+router.get('/getAllReservations/:chaletId',isAuth,adminController.getAllReservations)
 router.post('/createchalet',isAuth,adminController.createChalet)
 
 
