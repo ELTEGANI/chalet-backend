@@ -1,4 +1,4 @@
-const {Reservations,Chalets} = require('../models');
+const {Reservations,Chalets,Users} = require('../models');
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 const sequelize = require('sequelize');
@@ -158,18 +158,19 @@ module.exports = {
     },
 
     async getAllReservations(req,res,next) {
-      const  userId             = req.params.userId;
-      const  chaletId           = req.params.chaletId;
+      const  chaletId             = req.params.chaletId;
       try{
         const getAllReservations = await Reservations.findAll({
-          where:{userId:userId,chaletId:chaletId}
+          where:{chaletId:chaletId},
+        include:{
+          model:Users,
+         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
+        }
         });
         if(getAllReservations){
           return res
           .status(200)
-          .json({
-            chaletReservations:getAllReservations
-          });
+          .json(getAllReservations);
         }
       }catch (error) {
         if (!error.statusCode) {
