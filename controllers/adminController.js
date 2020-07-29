@@ -27,21 +27,20 @@ module.exports = {
       const  reservationStatus        = req.body.reservationStatus;
           //send email contains invoices and sms for confirmations
       if(reservationStatus === "Booked"){
-         try{ 
+         try{
           const updatedReservations = await Reservations.update({
               reservationStatus:reservationStatus,
-            },{where:{ 
+            },{where:{
               userId:userId,
               chaletId:chaletId,
               reservationStartDate:reservationStartDate,
               reservationEndDate:reservationEndDate
             }});
             if(updatedReservations){
-              
             //send sms
           const confirmationBookingMessage = "عملينا العزيز تم تاكيد الحجز امنياتنا بقضاء اوقات سعيدة.نرجو شاكرين كتابة ملاحظاتك عن خدماتنا من داخل التطبيق وذلك لمزيدا من ترقية الخدمة"  
           try {
-            const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${userPhoneNumber}&sender=${process.env.SMS_SENDER}&message=${confirmationBookingMessage}`);
+            const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${confirmationBookingMessage}`);
             console.log(res.data.data[0]);
           }catch (err) {
             console.error(err);
@@ -118,12 +117,25 @@ module.exports = {
           subject: "تاكيد الحجز",
           html: message,
           });
-
-          console.log("Message sent: %s", info.messageId);
-
-         return res.status(200).json({
-            message: 'Reservations Updated'
+           try{
+        const getAllReservations = await Reservations.findAll({
+          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
+        include:{
+          model:Users,
+         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
+        }
         });
+        if(getAllReservations){
+          return res
+          .status(200)
+          .json(getAllReservations);
+        }
+      }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+        }
           }
         }catch (error) {
         if (!error.statusCode) {
@@ -131,7 +143,7 @@ module.exports = {
         }
         next(error);
         }
-      }else{
+      }else if(reservationStatus === "Payed"){
         try{ 
           const updatedReservations = await Reservations.update({
               reservationStatus:reservationStatus,
@@ -142,11 +154,25 @@ module.exports = {
               reservationEndDate:reservationEndDate
             }});
             if(updatedReservations){
-             return res
-              .status(200)
-              .json({
-                message: 'Reservations Updated'
-              });
+                try{
+        const getAllReservations = await Reservations.findAll({
+          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
+        include:{
+          model:Users,
+         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
+        }
+        });
+        if(getAllReservations){
+          return res
+          .status(200)
+          .json(getAllReservations);
+        }
+      }catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+        }
             }
         }catch (error) {
         if (!error.statusCode) {
@@ -161,7 +187,7 @@ module.exports = {
       const  chaletId             = req.params.chaletId;
       try{
         const getAllReservations = await Reservations.findAll({
-          where:{chaletId:chaletId},
+          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
         include:{
           model:Users,
          attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
