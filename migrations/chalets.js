@@ -75,6 +75,18 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      bankAccount: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      bankName: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+     bankUserName: {
+        allowNull: false,
+        type: Sequelize.DATE
       }
     });
   },

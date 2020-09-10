@@ -66,6 +66,18 @@ module.exports = (sequelize, DataTypes) => {
     chaletApproval: { 
       type: DataTypes.STRING,
       allowNull: false
+    },
+    bankAccount: { 
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    bankName: { 
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    bankUserName: { 
+      type: DataTypes.STRING,
+      allowNull: false
     }
   }, {});
   Chalets.associate = function(models) {

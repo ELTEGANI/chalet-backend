@@ -156,7 +156,7 @@ module.exports = {
             if(updatedReservations){
                 try{
         const getAllReservations = await Reservations.findAll({
-          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
+          where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]},
         include:{
           model:Users,
          attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
@@ -261,5 +261,22 @@ module.exports = {
       next(error);
       }
     },
-
+      async updateBankInformation(req,res,next) {
+      const  userId                = req.body.userId;
+      const  bankName              = req.body.bankName; 
+      const  bankAccount           = req.body.bankAccount; 
+      const  bankUserName          = req.body.bankUserName; 
+       try{
+        const updatedBankInfo = await Chalets.update({bankAccount:bankAccount,bankUserName:bankUserName,bankName:bankName},
+                {where:{userId:userId}});
+          return res.status(200).json({
+          message:"true"
+          });
+       }catch (err) {
+        if (!err.statusCode) {
+          err.statusCode = 500;
+        }
+          next(err);
+      }
+    }
 };
