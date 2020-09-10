@@ -119,7 +119,7 @@ module.exports = {
           });
            try{
         const getAllReservations = await Reservations.findAll({
-          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
+          where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]},
         include:{
           model:Users,
          attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
@@ -187,7 +187,7 @@ module.exports = {
       const  chaletId             = req.params.chaletId;
       try{
         const getAllReservations = await Reservations.findAll({
-          where:{chaletId:chaletId,reservationStatus:["init","Payed"]},
+          where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]},
         include:{
           model:Users,
          attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
