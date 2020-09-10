@@ -46,63 +46,63 @@ app.use((error, req, res, next) => {
   });
 });
 
-// const job = new CronJob('* 10 * * * *',async function() {
-//   try{
-//   const reservationInThePassedTenHours =  await Reservations.findAll({ 
-//   attributes: ['reservationStartDate','reservationStatus'],
-//   where:{reservationStatus:["payed","init"]},
-//   include:[{
-//     model: Users, 
-//     attributes:['firebaseToken']
-//     }],
-//   raw : true,
-//   required: true
-//  });
+   const job = new CronJob('* 10 * * * *',async function() {
+    try{
+     const reservationInThePassedTenHours =  await Reservations.findAll({ 
+     attributes: ['reservationStartDate','reservationStatus'],
+     where:{reservationStatus:["Payed","init"]},
+     include:[{
+      model: Users, 
+      attributes:['firebaseToken']
+      }],
+     raw : true,
+     required: true
+     });
 
-//    //filter users tokens
-//    const filterdUserfirebaseToken = (reservationInThePassedTenHours.filter(item => 
-//    item.reservationStatus == "payed" && reservationInThePassedTenHours.map(items => items.reservationStartDate)
-//    .includes(item.reservationStartDate)));
+    //filter users tokens
+    const filterdUserfirebaseToken = (reservationInThePassedTenHours.filter(item => 
+    item.reservationStatus == "Payed" && reservationInThePassedTenHours.map(items => items.reservationStartDate)
+    .includes(item.reservationStartDate)));
 
-//    //update the status to canceled
-//      try{
-//     const updatedBooking = Reservations.update({
-//     reservationStatus:"Canceled"},{where:{reservationStatus:"payed",createdAt:{
-//         [Op.gt]: new Date(Date.now() - (60 * 60 * 10000))
-//     }}});
-//     console.log('updatedBooking:',updatedBooking)
-//     }catch (error) {
-//     console.log('error:',error)
-//     }
+      //update the status to canceled
+      try{
+     const updatedBooking = Reservations.update({
+     reservationStatus:"Canceled"},{where:{reservationStatus:"Payed",createdAt:{
+         [Op.gt]: new Date(Date.now() - (60 * 60 * 10000))
+     }}});
+     console.log('updatedBooking:',updatedBooking)
+      }catch (error) {
+      console.log('error:',error)
+      }
    
-//     //send notifications to other users
-//    const message = {
-//      notification: {
-//     title: 'test title',
-//     body: 'test body'
-//       },
-//      tokens: filterdUserfirebaseToken.map(token=>token['User.firebaseToken'])
-//   };
+     //send notifications to other users
+      const message = {
+       notification: {
+      title: 'حجز شاليهات',
+      body: 'عزيزي العميل نرجو شاكرين تكملة اجراءات الحجز'
+        },
+       tokens: filterdUserfirebaseToken.map(token=>token['User.firebaseToken'])
+     };
 
-//      admin.messaging().sendMulticast(message)
-//     .then((response) => {
-//     if (response.failureCount > 0) {
-//       const failedTokens = [];
-//       response.responses.forEach((resp, idx) => {
-//         if (!resp.success) {
-//           failedTokens.push(registrationTokens[idx]);
-//         }
-//       });
-//       console.log('List of tokens that caused failures: ' + failedTokens);
-//     }
-//   });
+      admin.messaging().sendMulticast(message)
+     .then((response) => {
+     if (response.failureCount > 0) {
+       const failedTokens = [];
+       response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+           failedTokens.push(registrationTokens[idx]);
+         }
+       });
+       console.log('List of tokens that caused failures: ' + failedTokens);
+     }
+   });
 
-//    }catch (error) {  
-//        console.log('error:',error)
-//    }
-// }); 
+    }catch (error) {  
+        console.log('error:',error)
+    }
+}); 
 
-//job.start();
+job.start();
   
 
 app.listen(process.env.PORT || 5000, () => {

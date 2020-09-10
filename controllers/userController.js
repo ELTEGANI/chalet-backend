@@ -8,28 +8,25 @@ const nodemailer = require("nodemailer");
 
 
 module.exports = {
-  async signUpUser(req,res,next) {
+      async signUpUser(req,res,next) {
       const  firstName           = req.body.firstName;
       const  lastName            = req.body.lastName;
       const  nationalId          = req.body.nationalId;
-      const  geneder             = req.body.geneder;
-      const  password            = req.body.password;
       const  phoneNumber         = req.body.phoneNumber;
       const  emailAddress        = req.body.emailAddress;
       const  firebaseToken       = "null";
       const  verificationMessage = Math.random().toString(4).substring(2,4) + Math.random().toString(4).substring(2,4);
  try{ 
-       const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })
-        if(!isUserExists){
-          const hashedPassword = await bcrypt.hash(password,12)  
+       const isUserExists = await Users.findOne({ where: { phoneNumber:phoneNumber } })       
+       if(!isUserExists){  
           const createdUser = await Users.create({
             firstName:firstName,
             lastName:lastName,
             phoneNumber:phoneNumber,
             nationalId:nationalId,
             emailAddress:emailAddress,
-            geneder:geneder,
-            password:hashedPassword,
+            geneder:"null",
+            password:"null",
             firebaseToken:firebaseToken
             })
             if(createdUser){
@@ -110,11 +107,32 @@ module.exports = {
               }
           }
         }else{
-          return res
-            .status(422)
-            .json({
-             message:"Exists",
-         })
+              try{
+                    const createdCode = await sms_codes.create({
+                      userId:isUserExists.id,
+                      code:verificationMessage,
+                  })
+                  if(createdCode){
+                    try {
+                      const message = "your activation code is"+" "+verificationMessage;
+    const res = await axios.post(`https://www.hisms.ws/api.php?send_sms&username=${process.env.SMS_USERNAME}&password=${process.env.SMS_PASSWORD}&numbers=${phoneNumber}&sender=${process.env.SMS_SENDER}&message=${message}`);
+                      console.log(res.data.data[0]);
+                    }catch (err) {
+                      console.error(err);
+                    }
+                    return res
+                    .status(201)
+                    .json({
+                      message:"found",
+                      userId:createdCode.userId
+                    })
+                  }
+                   }catch (error) {
+                    if (!error.statusCode) {
+                      error.statusCode = 500;
+                    }
+                    next(error);
+                    }
        }         
       }catch (error) {
       if (!error.statusCode) {
@@ -311,6 +329,7 @@ module.exports = {
                 const createdCode = await sms_codes.create({
                   userId:userId,
                   code:verificationCode,
+                 status:1
               })
               if(createdCode){
                 const  verificationMessage = ("<h3 style='text-align: center;'>"+
@@ -383,7 +402,7 @@ return res
     const verificationCode = req.body.verificationCode;
     const userId           = req.body.userId;
     const isCodeExists = await sms_codes.findOne({
-      where: { userId:userId,code:verificationCode}
+      where: {code:verificationCode}
     });
     try{
       if(isCodeExists){
