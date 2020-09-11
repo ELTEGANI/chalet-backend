@@ -152,10 +152,9 @@ module.exports = {
       const  reservationConditions  = req.body.reservationConditions;
        try{
         const  isBooked = await Reservations.findOne({ where: {
-          reservationStatus:["init","booked"],
+          reservationStatus:["init","Booked"],
           reservationStartDate:reservationStartDate,
           reservationEndDate:reservationEndDate,
-          userId:userId,
           chaletId:chaletId
           }});
          if(!isBooked){
@@ -464,7 +463,7 @@ return res
     const chaletId           = req.body.chaletId;
 
     try{
-      const isUserReserved = await Reservations.findOne({ where: { userId:userId } })
+      const isUserReserved = await Reservations.findOne({ where: { userId:userId,id:chaletId} })
       if(isUserReserved){
         try{
           const createdNotes = await Inbox.create({

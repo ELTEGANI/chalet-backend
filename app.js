@@ -46,7 +46,7 @@ app.use((error, req, res, next) => {
   });
 });
 
-   const job = new CronJob('* 10 * * * *',async function() {
+   const job = new CronJob('* 3 * * * *',async function() {
     try{
      const reservationInThePassedTenHours =  await Reservations.findAll({ 
      attributes: ['reservationStartDate','reservationStatus'],
