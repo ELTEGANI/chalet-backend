@@ -287,5 +287,47 @@ module.exports = {
         }
           next(err);
       }
-    }
+    },
+
+    async updatePricesAndDiscounts(req,res,next){
+      const  userId                = req.body.userId;
+      const  chaletId              = req.body.chaletId 
+      const  chaletPriceHoliday    = req.body.chaletPriceHoliday;
+      const  chaletPriceNormalDay  = req.body.chaletPriceNormalDay;
+     
+       try{
+        const updatedPricesInfo = await Chalets.update({chaletPriceNormalDay:chaletPriceNormalDay,chaletPriceHoliday:chaletPriceHoliday},
+                {where:{userId:userId,id:chaletId}});
+          return res.status(200).json({
+          message:"true"
+          });
+       }catch (err) {
+        if (!err.statusCode) {
+          err.statusCode = 500;
+        }
+          next(err);
+      }
+    },
+
+     async updateDiscounts(req,res,next){
+      const  userId       = req.body.userId
+      const  discount     = req.body.discount;
+      const  insurance    = req.body.insurance;
+      const  earnest      = req.body.earnest;
+
+       try{
+        const updatedPricesInfo = await Chalets.update({chaletPercentage:discount,chaletInsurance:insurance,
+          chaletCommison:earnest},
+                {where:{userId:userId}});
+          return res.status(200).json({
+          message:"true"
+          });
+       }catch (err) {
+        if (!err.statusCode) {
+          err.statusCode = 500;
+        }
+          next(err);
+      }
+     }
+
 };

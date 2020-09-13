@@ -11,7 +11,7 @@ var serviceAccount = require("/home/firebase-adminsdk.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://my-project23-1575077857759.firebaseio.com"
+  databaseURL: "https://booking-chalets.firebaseio.com"
 });
 
 // set routes
@@ -68,7 +68,7 @@ app.use((error, req, res, next) => {
       try{
      const updatedBooking = Reservations.update({
      reservationStatus:"Canceled"},{where:{reservationStatus:"Payed",createdAt:{
-         [Op.gt]: new Date(Date.now() - (60 * 60 * 10000))
+         [Op.gt]: new Date(Date.now() - (10800000))
      }}});
      console.log('updatedBooking:',updatedBooking)
       }catch (error) {

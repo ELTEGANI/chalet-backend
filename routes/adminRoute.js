@@ -8,5 +8,7 @@ router.post('/confirmbooking',isAuth,adminController.bookingAndPayedCommissions)
 router.get('/getAllReservations/:chaletId',isAuth,adminController.getAllReservations)
 router.post('/createchalet',isAuth,adminController.createChalet)
 router.put('/updateBankInformation',isAuth,adminController.updateBankInformation)
+router.put('/updatePricesInfo',isAuth,adminController.updatePricesAndDiscounts)
+router.put('/updatediscounts',isAuth,adminController.updateDiscounts)
 module.exports = router;
   
