@@ -48,59 +48,17 @@ app.use((error, req, res, next) => {
 
    const job = new CronJob('* 3 * * * *',async function() {
     try{
-     const reservationInThePassedTenHours =  await Reservations.findAll({ 
-     attributes: ['reservationStartDate','reservationStatus'],
-     where:{reservationStatus:["Payed","init"]},
-     include:[{
-      model: Users, 
-      attributes:['firebaseToken']
-      }],
-     raw : true,
-     required: true
-     });
-
-    //filter users tokens
-    const filterdUserfirebaseToken = (reservationInThePassedTenHours.filter(item => 
-    item.reservationStatus == "Payed" && reservationInThePassedTenHours.map(items => items.reservationStartDate)
-    .includes(item.reservationStartDate)));
-
       //update the status to canceled
-      try{
      const updatedBooking = Reservations.update({
      reservationStatus:"Canceled"},{where:{reservationStatus:"Payed",createdAt:{
          [Op.gt]: new Date(Date.now() - (10800000))
      }}});
+
      console.log('updatedBooking:',updatedBooking)
       }catch (error) {
       console.log('error:',error)
       }
-   
-     //send notifications to other users
-      const message = {
-       notification: {
-      title: 'حجز شاليهات',
-      body: 'عزيزي العميل نرجو شاكرين تكملة اجراءات الحجز'
-        },
-       tokens: filterdUserfirebaseToken.map(token=>token['User.firebaseToken'])
-     };
-
-      admin.messaging().sendMulticast(message)
-     .then((response) => {
-     if (response.failureCount > 0) {
-       const failedTokens = [];
-       response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-           failedTokens.push(registrationTokens[idx]);
-         }
-       });
-       console.log('List of tokens that caused failures: ' + failedTokens);
-     }
-   });
-
-    }catch (error) {  
-        console.log('error:',error)
-    }
-}); 
+});
 
 job.start();
   
