@@ -6,8 +6,6 @@ const axios = require('axios');
 const { Op } = require('sequelize');
 require('dotenv').config();
 const nodemailer = require("nodemailer");
-const admin = require('firebase-admin');
-
 
 
 
@@ -28,6 +26,7 @@ module.exports = {
       const  reservationEndDate       = req.body.reservationEndDate;
       const  reservationStatus        = req.body.reservationStatus;
       const  firebaseToken            = req.body.firebaseToken;
+ 
           //send email contains invoices and sms for confirmations
       if(reservationStatus === "Booked"){
          try{
@@ -138,21 +137,6 @@ module.exports = {
         }
         });
         if(getAllReservations){
-           const message = {
-           notification: {
-             title: 'تاكيد الحجز النهائي',
-             body: 'عزيزي العميل تم تاكيد حجزك النهائي نتمني لك اقامة سعيدة ونرحب دوما بكتابة ملاحظاتك عن الشالية لمزيدا من الارتقاء بخدماتنا'
-          },
-          token:firebaseToken
-        };
-         admin.messaging().send(message)
-          .then((response) => {
-          //Response is a message ID string.
-          console.log('Successfully sent message:', response);
-           })
-          .catch((error) => {
-           console.log('Error sending message:', error);
-          });
           return res
           .status(200)
           .json(getAllReservations);
@@ -186,26 +170,11 @@ module.exports = {
           where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]},
         include:{
           model:Users,
-         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder','firebaseToken'],
+         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
         }
         });
         if(getAllReservations){
-          const message = {
-           notification: {
-             title: 'تاكيد الحجز المبدئ',
-             body: 'عزيزنا العميل نفيدك بانه تم تاكيد حجزك المبدئ نرجو شاكرين  مواصلة اجراءات الحجز'
-          },
-          token:firebaseToken
-        };
-         admin.messaging().send(message)
-          .then((response) => {
-          //Response is a message ID string.
-          console.log('Successfully sent message:', response);
-           })
-          .catch((error) => {
-           console.log('Error sending message:', error);
-          });
-           return res
+          return res
           .status(200)
           .json(getAllReservations);
         }
@@ -232,7 +201,7 @@ module.exports = {
           where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]},
         include:{
           model:Users,
-         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder','firebaseToken'],
+         attributes:['id','firstName','lastName','phoneNumber','nationalId','emailAddress','geneder'],
         }
         });
         if(getAllReservations){
