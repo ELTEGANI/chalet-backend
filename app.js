@@ -4,8 +4,8 @@ require('dotenv').config();
 const CronJob = require('cron').CronJob;
 const {Reservations,Users} = require('./models');
 const { Op } = require('sequelize');
-const admin = require('firebase-admin');
 const sequelize = require('sequelize');
+const admin = require('firebase-admin');
 
 var serviceAccount = require("/home/firebase-adminsdk.json");
 
@@ -13,6 +13,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://booking-chalets.firebaseio.com"
 });
+
 
 // set routes
 const userRoute = require('./routes/userRoute');
@@ -48,12 +49,11 @@ app.use((error, req, res, next) => {
 
    const job = new CronJob('* 3 * * * *',async function() {
     try{
-      //update the status to canceled
+      //update the status to cancelled reservation that exceeds 3 hours
      const updatedBooking = Reservations.update({
      reservationStatus:"Canceled"},{where:{reservationStatus:"Payed",createdAt:{
          [Op.gt]: new Date(Date.now() - (10800000))
      }}});
-
      console.log('updatedBooking:',updatedBooking)
       }catch (error) {
       console.log('error:',error)
