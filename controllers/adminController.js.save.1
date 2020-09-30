@@ -193,7 +193,7 @@ module.exports = {
           const message = {
            notification: {
              title: 'تاكيد الحجز المبدئ',
-             body: 'عزيزنا العميل نفيدك بانه تم تاكيد حجزك المبدئ نرجو شاكرين  مواصلة اجراءات الحجز'
+             body:  'عزيزنا العميل نفيدك بانه تم تاكيد حجزك المبدئ نرجو شاكرين  مواصلة اجراءات الحجز وننوه الي انه سيتم الغاءه بعد ثلاثة ساعات في حالة اكتمال الحجز النهائي'
           },
           token:firebaseToken
         };
@@ -383,25 +383,19 @@ module.exports = {
         next(error);
         }
     },
-
-     async generateReports(req,res,next) {
-           const  chaletId       = req.params.chaletId
-           const  startDate      = req.params.startDate;
-           const  endDate        = req.params.endDate;
+    
+    async generateReport(req,res,next) {
       try{
-        const reports = await Reservations.findAll({
-        attributes: [
-          [sequelize.fn('COUNT',sequelize.col('reservationStatus')),'No_Of_Customers'],
-          [sequelize.fn('SUM',sequelize.col('reservationAmount')),'Total_Amount']
-        ],
-         where:{
-              chaletId:chaletId,reservationStatus:["Booked"],reservationStartDate:{ [Op.between]: [startDate, endDate] }
-          }
+        const report = await Reservations.findAll({
+        include:{
+          model:Chalets,
+         attributes:['id','chaletName'],
+        }
         });
-        if(reports){
+        if(report){
           return res
           .status(200)
-          .json(reports);
+          .json(userMessages);
         }
       }catch (error) {
         if (!error.statusCode) {
@@ -409,6 +403,5 @@ module.exports = {
         }
         next(error);
         }
-    },
-
+    }
 };

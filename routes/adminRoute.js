@@ -10,5 +10,7 @@ router.post('/createchalet',isAuth,adminController.createChalet)
 router.put('/updateBankInformation',isAuth,adminController.updateBankInformation)
 router.put('/updatePricesInfo',isAuth,adminController.updatePricesAndDiscounts)
 router.put('/updatediscounts',isAuth,adminController.updateDiscounts)
+router.get('/getAllUserMessages',isAuth,adminController.getAllUserMessages)
+router.get('/reports/:chaletId/:startDate/:endDate',isAuth,adminController.generateReports)
 module.exports = router;
   
