@@ -152,7 +152,7 @@ module.exports = {
       const  reservationConditions  = req.body.reservationConditions;
        try{
         const  isBooked = await Reservations.findOne({ where: {
-          reservationStatus:["init","Booked"],
+          reservationStatus:["init","Payed","Booked"],
           reservationStartDate:reservationStartDate,
           reservationEndDate:reservationEndDate,
           chaletId:chaletId
@@ -364,7 +364,7 @@ module.exports = {
       try{
         const getAllReservations = await Reservations.findAll({ 
          attributes: ['reservationStartDate','reservationEndDate'],
-         where:{chaletId:chaletId,reservationStatus:"Booked"}
+         where:{chaletId:chaletId,reservationStatus:["init","Payed","Booked"]}
         });
         if(getAllReservations){
           return res
